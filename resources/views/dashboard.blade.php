@@ -1,40 +1,31 @@
 @extends('layouts.app')
 
-@section('title', 'BUsina Online')
+@section('title', 'BUsina Online Dashboard')
 
 @section('content')
 
 <style>
 html, body {
-    height: 100%;
     margin: 0;
     font-family: 'Poppins', sans-serif;
-    background-color: #ecf0f1;
-    overflow-x: hidden;
-}
-
-.container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background-color: #f5f5f9;
     height: 100vh;
-    padding: 20px;
-    gap: 20px; 
+    overflow: hidden;
+    font-size: 14px;
 }
 
-.card, .qr {
-    background-color: white;
+.card {
+    background-image: url('/images/torch.png'); 
+    background-size: cover;
+    background-position: center;
+    border: 2px solid #f7f5f4;
     border-radius: 15px;
-    padding: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 30px;
     width: 100%;
-    height: 500px;
-    max-width: 400px; 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+    max-width: 800px;
 }
+
 
 .sidebar {
     width: 50px;
@@ -130,76 +121,69 @@ html, body {
 }
 
 .main-content {
-    margin-left: 60px; 
-    padding: 20px;
-    width: calc(100% - 60px); 
+    margin-left: 80px;
+    padding: 40px;
+    width: calc(100% - 80px);
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    height: 70%;
 }
 
+/* User initials circle */
 .user-initials-circle {
-    background: #ffffff; 
-    color: #090202;
+    background-color: #f39c12;
+    color: #fff;
     border-radius: 50%;
-    width: 100px; 
-    height: 100px; 
+    width: 100px;
+    height: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 36px; 
-    margin-bottom: 20px;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1); 
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    font-size: 36px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.08);
 }
 
-.user-initials-circle:hover {
-    transform: scale(1.03); 
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15); 
-}
-
-
+/* Date and time container */
 .datetime {
-    margin-bottom: 20px;
+    font-size: 16px;
+    color: #555;
+    text-align: center;
+    margin-bottom: 15px;
 }
 
-.qr-code img {
-    max-width: 100px; 
-    height: auto;
-    margin-bottom: 20px;
-}
-
-.qr-code .unavailable {
-    font-size: 14px;
-    color: #e74c3c;
-    margin-bottom: 20px;
-}
-
+/* Logout button */
 .logout-button {
     background-color: #e74c3c;
-    color: white;
+    color: #fff;
     border: none;
-    padding: 10px 20px;
+    padding: 10px 30px;
+    font-size: 14px;
+    border-radius: 30px;
     cursor: pointer;
-    border-radius: 5px;
-    margin-top: 10px;
+}
+
+.logout-button:hover {
+    background-color: #c0392b;
 }
 </style>
 
-<div class="container">
-    <div class="card">
-        <div class="sidebar" id="sidebar">
-            <ul class="sidebar-menu">
-                <li><a href="{{ route('dashboard') }}" data-tooltip="Home"><img src="{{ asset('images/home_btn.png') }}" alt="Home Icon"></a></li>
-                <li><a href="{{ route('vehicles.list') }}" data-tooltip="Registered Vehicles"><img src="{{ asset('images/vehicle_btn.png') }}" alt="Vehicles Icon"></a></li>
-                <li><a href="{{ route('edit.page') }}" data-tooltip="Edit Profile"><img src="{{ asset('images/edit_btn.png') }}" alt="Edit Icon"></a></li>
-            </ul>
-            <button class="toggle-btn" id="toggle-btn">☰</button>
-        </div>
+<div class="d-flex">
+    <div class="sidebar" id="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="{{ route('dashboard') }}" data-tooltip="Home"><img src="{{ asset('images/home_btn.png') }}" alt="Home Icon"></a></li>
+            <li><a href="{{ route('vehicles.list') }}" data-tooltip="Vehicles"><img src="{{ asset('images/vehicle_btn.png') }}" alt="Vehicles Icon"></a></li>
+            <li><a href="{{ route('edit.page') }}" data-tooltip="Edit Profile"><img src="{{ asset('images/edit_btn.png') }}" alt="Edit Icon"></a></li>
+        </ul>
+        <button class="toggle-btn" id="toggle-btn">☰</button>
+    </div>
 
-        <div class="main-content">
-            <div class="user-initials-circle">
+    <div class="main-content">
+        <div class="card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="user-initials-circle">
                     @if(Auth::check() && Auth::user()->vehicleOwner)
                         @php
@@ -209,12 +193,16 @@ html, body {
                         @endphp
                         {{ $initials }}
                     @endif
-                </div>                
+                </div>
+                <div class="datetime text-center">
+                    <p id="current-date"></p>
+                    <p id="current-time"></p>
+                </div>
             </div>
 
-            <div class="datetime">
-                <p id="current-date"></p>
-                <p id="current-time"></p>
+            <div class="text-center mb-3">
+                <h5>Welcome, {{ Auth::user()->name }}!</h5>
+                <p>Your vehicle details and status are displayed below:</p>
             </div>
 
             <button class="logout-button" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</button>
@@ -223,22 +211,11 @@ html, body {
             </form>
         </div>
     </div>
-
-    <div class="qr">
-        <div class="qr-code">
-            @if(isset($registration->vehicleOwner->qr_code))
-                <img src="{{ asset('storage/' . $registration->vehicleOwner->qr_code) }}" alt="QR Code">
-            @else
-                <p class="unavailable">QR Code Unavailable</p>
-            @endif
-        </div>
-    </div>
 </div>
 
 <script>
     document.getElementById('toggle-btn').addEventListener('click', function () {
-        var sidebar = document.getElementById('sidebar');
-        sidebar.classList.toggle('hidden');
+        document.getElementById('sidebar').classList.toggle('hidden');
     });
 
     function updateDateTime() {
